@@ -145,7 +145,7 @@ def on_open(ws):
 
                     d = {"common": wsParam.CommonArgs,
                          "business": wsParam.BusinessArgs,
-                         "data": {"status": 0, "format": "audio/L16;rate=8000",     # 这里设置了只能读取pcm文件
+                         "data": {"status": 0, "format": "audio/L16;rate=16000",     # 这里设置了只能读取pcm文件
                                   "audio": str(base64.b64encode(buf), 'utf-8'),
                                   "encoding": "raw"}}
                     d = json.dumps(d)
@@ -153,13 +153,13 @@ def on_open(ws):
                     status = STATUS_CONTINUE_FRAME
                 # 中间帧处理
                 elif status == STATUS_CONTINUE_FRAME:
-                    d = {"data": {"status": 1, "format": "audio/L16;rate=8000",
+                    d = {"data": {"status": 1, "format": "audio/L16;rate=16000",
                                   "audio": str(base64.b64encode(buf), 'utf-8'),
                                   "encoding": "raw"}}
                     ws.send(json.dumps(d))
                 # 最后一帧处理
                 elif status == STATUS_LAST_FRAME:
-                    d = {"data": {"status": 2, "format": "audio/L16;rate=8000",
+                    d = {"data": {"status": 2, "format": "audio/L16;rate=16000",
                                   "audio": str(base64.b64encode(buf), 'utf-8'),
                                   "encoding": "raw"}}
                     ws.send(json.dumps(d))
@@ -172,12 +172,9 @@ def on_open(ws):
     thread.start_new_thread(run, ())
 
 
-if __name__ == "__main__":
+def run():
     # 测试时候在此处正确填写相关信息即可运行
     time1 = datetime.now()
-    wsParam = Ws_Param(APPID='f879c9a6', APISecret='NzY3ZGQwZGViODc5ZmY1NzMxYmY4NmM1',
-                       APIKey='d1faf503ef453239e49690582b14a87f',
-                       AudioFile=r'iat_pcm_8k.pcm')
     websocket.enableTrace(False)
     wsUrl = wsParam.create_url()
     ws = websocket.WebSocketApp(wsUrl, on_message=on_message, on_error=on_error, on_close=on_close)
@@ -185,4 +182,14 @@ if __name__ == "__main__":
     ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
     time2 = datetime.now()
     print(time2-time1)
-    print("The final result: ",load_text[-2])
+    if(len(load_text) >= 2):
+        print("The final result: ",load_text[-2])
+        return load_text[-2]
+    else:
+        print("There is no texts!")
+        return "None"
+    
+
+wsParam = Ws_Param(APPID='f879c9a6', APISecret='NzY3ZGQwZGViODc5ZmY1NzMxYmY4NmM1',
+                       APIKey='d1faf503ef453239e49690582b14a87f',
+                       AudioFile=r'audio.pcm')
